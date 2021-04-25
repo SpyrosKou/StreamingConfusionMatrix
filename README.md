@@ -1,5 +1,6 @@
 # StreamingConfusionMatrix
-Streaming parallel calculation of a windowed confusion matrix for label prediction of N different models concurrently.
+Parallel calculation of the confusion matrix for a window of streamed label prediction written in Scala.
+Supports an arbitrary number of models.
 
 ## Confusion Matrix
 A confusion matrix, is a specific table layout that visualizes the performance of a supervised statistical classification algorithm. [Confusion Matrix - Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix)
