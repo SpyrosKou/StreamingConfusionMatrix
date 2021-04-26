@@ -32,6 +32,10 @@ import scala.language.postfixOps
  * @author Spyros Koukas
  */
 
+/**
+ *
+ * @param predictions
+ */
 final class ConfusionMatrix(val predictions: Map[String, Map[String, Long]]) {
 
   /**

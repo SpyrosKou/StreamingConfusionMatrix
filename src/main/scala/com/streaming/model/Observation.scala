@@ -25,6 +25,12 @@ package com.streaming.model
  *
  * @author Spyros Koukas
  */
+
+/**
+ *
+ * @param actualLabel
+ * @param observation
+ */
 final class Observation(val actualLabel: String, val observation: Map[String, Long]) {
 
   /**
