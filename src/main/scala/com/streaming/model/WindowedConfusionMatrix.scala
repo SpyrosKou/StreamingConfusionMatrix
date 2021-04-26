@@ -20,7 +20,10 @@
  */
 package com.streaming.model
 
+
+
 import scala.collection.immutable.Queue
+
 
 
 /**
@@ -80,6 +83,7 @@ final class WindowedConfusionMatrix(val confusionMatrix: ConfusionMatrix, val wi
    */
   final def occurrences(actualLabel: String, resultLabel: String): Long = {
     val observationsForLabel = occurrences(actualLabel)
+
     return observationsForLabel.getOrElse(resultLabel, 0)
   }
 
