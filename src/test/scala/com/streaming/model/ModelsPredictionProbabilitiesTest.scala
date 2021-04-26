@@ -38,9 +38,25 @@ class ModelsPredictionProbabilitiesTest extends AnyFlatSpec with should.Matchers
 
     val modelsPredictionProbabilities = new ModelsPredictionProbabilities(id, givenLabel, probabilities)
     modelsPredictionProbabilities.modelsToLabelsProbabilities.size should be(2)
+    modelsPredictionProbabilities.modelsToLabelsProbabilities.get("model1").get.size should be(2)
+    modelsPredictionProbabilities.modelsToLabelsProbabilities.get("model2").get.size should be(2)
   }
 
-  "A ModelsPredictionProbabilities" should "provide correct probabilities for models and labels" in {
+  "A ModelsPredictionProbabilities" should "be created successfully for 3 models 3 labels" in {
+    val probabilities = Map("model1" -> Map("A" -> 0.3, "B" -> 0.5, "C" -> 0.2),
+      "model2" -> Map("A" -> 0.2, "B" -> 0.5, "C" -> 0.3),
+      "model3" -> Map("A" -> 0.1, "B" -> 0.2, "C" -> 0.7))
+    val id = 1
+    val givenLabel = "A"
+
+    val modelsPredictionProbabilities = new ModelsPredictionProbabilities(id, givenLabel, probabilities)
+    modelsPredictionProbabilities.modelsToLabelsProbabilities.size should be(3)
+    modelsPredictionProbabilities.modelsToLabelsProbabilities.get("model1").get.size should be(3)
+    modelsPredictionProbabilities.modelsToLabelsProbabilities.get("model2").get.size should be(3)
+    modelsPredictionProbabilities.modelsToLabelsProbabilities.get("model3").get.size should be(3)
+  }
+
+  "A ModelsPredictionProbabilities" should "provide correct probabilities for 2 models and 2 labels" in {
     val probabilities = Map("model1" -> Map("A" -> 0.3, "B" -> 0.7),
       "model2" -> Map("A" -> 0.2, "B" -> 0.8))
     val id = 1
@@ -52,6 +68,28 @@ class ModelsPredictionProbabilitiesTest extends AnyFlatSpec with should.Matchers
     modelsPredictionProbabilities.getModelLabelProbability("model2", "A") should be(0.2)
     modelsPredictionProbabilities.getModelLabelProbability("model2", "B") should be(0.8)
 
+  }
+
+  "A ModelsPredictionProbabilities" should "provide correct probabilities for 3 models and 3 labels" in {
+    val probabilities = Map("model1" -> Map("A" -> 0.3, "B" -> 0.5, "C" -> 0.2),
+      "model2" -> Map("A" -> 0.2, "B" -> 0.5, "C" -> 0.3),
+      "model3" -> Map("A" -> 0.1, "B" -> 0.2, "C" -> 0.7))
+    val id = 1
+    val givenLabel = "A"
+
+    val modelsPredictionProbabilities = new ModelsPredictionProbabilities(id, givenLabel, probabilities)
+    //Model 1
+    modelsPredictionProbabilities.getModelLabelProbability("model1", "A") should be(0.3)
+    modelsPredictionProbabilities.getModelLabelProbability("model1", "B") should be(0.5)
+    modelsPredictionProbabilities.getModelLabelProbability("model1", "C") should be(0.2)
+    //Model 2
+    modelsPredictionProbabilities.getModelLabelProbability("model2", "A") should be(0.2)
+    modelsPredictionProbabilities.getModelLabelProbability("model2", "B") should be(0.5)
+    modelsPredictionProbabilities.getModelLabelProbability("model2", "C") should be(0.3)
+    //Model 3
+    modelsPredictionProbabilities.getModelLabelProbability("model3", "A") should be(0.1)
+    modelsPredictionProbabilities.getModelLabelProbability("model3", "B") should be(0.2)
+    modelsPredictionProbabilities.getModelLabelProbability("model3", "C") should be(0.7)
   }
 
   "A ModelsPredictionProbabilities" should "calculate weighted observation correctly " in {
@@ -72,12 +110,11 @@ class ModelsPredictionProbabilitiesTest extends AnyFlatSpec with should.Matchers
     val frequency = 1L
     val observationExpected = new Observation("A", Map("B" -> 1L))
     val modelsPredictionProbabilities = new ModelsPredictionProbabilities(id, givenLabel, probabilities)
-    val observationResult=modelsPredictionProbabilities.observation(weights)
-    observationResult.actualLabel should be (observationExpected.actualLabel)
-    observationResult.observation should be (observationExpected.observation)
-    observationResult.observation.get("B").get should be (observationExpected.observation.get("B").get)
-    observationResult.observation.get("A") should be (observationExpected.observation.get("A"))
-
+    val observationResult = modelsPredictionProbabilities.observation(weights)
+    observationResult.actualLabel should be(observationExpected.actualLabel)
+    observationResult.observation should be(observationExpected.observation)
+    observationResult.observation.get("B").get should be(observationExpected.observation.get("B").get)
+    observationResult.observation.get("A") should be(observationExpected.observation.get("A"))
   }
 
 
