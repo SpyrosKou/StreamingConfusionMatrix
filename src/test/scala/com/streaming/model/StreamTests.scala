@@ -33,7 +33,7 @@ import scala.concurrent.{Await, Future}
  *
  * @author Spyros Koukas
  */
-class WindowedConfusionMatrixStreamTest extends AnyFlatSpec with should.Matchers {
+final class StreamTests extends AnyFlatSpec with should.Matchers {
 
 
   "A WindowedConfusionMatrix in a Stream" should " observe 1001 full windows in a 2000 observation sequence" in {
