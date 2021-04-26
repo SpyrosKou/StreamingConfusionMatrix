@@ -20,7 +20,6 @@
  */
 package com.streaming.model
 
-import akka.Done
 import akka.actor.ActorSystem
 import akka.stream.scaladsl._
 import org.scalatest.flatspec.AnyFlatSpec
