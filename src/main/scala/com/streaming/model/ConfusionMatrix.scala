@@ -27,6 +27,7 @@ import scala.language.postfixOps
 /**
  * A generic confusion matrix, that can support any number of labels.
  * Each label is a String.
+ * It could be potentially with a first/last  ID so it can be correlated with the measurements of the window.
  * Created at 2021-04-25 on 10:05 
  *
  * @author Spyros Koukas
