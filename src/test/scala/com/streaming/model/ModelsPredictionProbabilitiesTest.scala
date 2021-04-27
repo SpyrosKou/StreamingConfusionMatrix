@@ -93,7 +93,8 @@ class ModelsPredictionProbabilitiesTest extends AnyFlatSpec with should.Matchers
   }
 
   "A ModelsPredictionProbabilities" should "calculate weighted observation correctly for 2 models and 2 labels " in {
-    val probabilities = Map("model1" -> Map("A" -> 0.3, "B" -> 0.7),
+    val probabilities = Map(
+      "model1" -> Map("A" -> 0.3, "B" -> 0.7),
       "model2" -> Map("A" -> 0.2, "B" -> 0.8))
     val id = 1
     val givenLabel = "A"
