@@ -41,4 +41,6 @@ final class Observation(val actualLabel: String, val observation: Map[String, Lo
     this(actualLabel, Map.empty)
   }
 
+
+  override def toString = s"Observation(actualLabel=$actualLabel, observation=$observation)"
 }

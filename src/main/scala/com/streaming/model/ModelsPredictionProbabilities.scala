@@ -84,4 +84,9 @@ final class ModelsPredictionProbabilities(val id: Long, val givenLabel: String, 
     });
   }
 
+  /**
+   *
+   * @return
+   */
+  override def toString = s"ModelsPredictionProbabilities(id=$id, givenLabel=$givenLabel, modelsToLabelsProbabilities=$modelsToLabelsProbabilities)"
 }

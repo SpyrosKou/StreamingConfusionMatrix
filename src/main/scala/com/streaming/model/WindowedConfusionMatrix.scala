@@ -97,4 +97,5 @@ final class WindowedConfusionMatrix(val confusionMatrix: ConfusionMatrix, val wi
 
   }
 
+  override def toString = s"WindowedConfusionMatrix(confusionMatrix=$confusionMatrix, windowPredictions=$windowPredictions, observations=$observations, isWindowFull=$isWindowFull)"
 }

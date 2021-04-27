@@ -123,4 +123,6 @@ final class ConfusionMatrix(val predictions: Map[String, Map[String, Long]]) {
     (allKeys) map { key => key -> (accumulated.getOrElse(key, 0L) - dif.getOrElse(key, 0L)) } toMap
   }
 
+
+  override def toString = s"ConfusionMatrix(predictions=$predictions, this=$this)"
 }
