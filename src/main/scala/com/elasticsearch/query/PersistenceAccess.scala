@@ -2,16 +2,14 @@ package com.elasticsearch.query
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import com.streaming.model.{ConfusionMatrix, ModelsPredictionProbabilities}
-import org.elasticsearch.action.DocWriteResponse
+import com.streaming.model.ModelsPredictionProbabilities
+import org.elasticsearch.action.bulk.BulkRequest
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.client.{RequestOptions, RestHighLevelClient}
-import org.elasticsearch.common.xcontent.{XContentBuilder, XContentFactory}
+import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.builder.SearchSourceBuilder
-
-import java.util
 
 
 /**
@@ -130,58 +128,25 @@ final class PersistenceAccess(client: RestHighLevelClient, index: String) {
   }
 
   /**
-   * Persist the confusionMatrix in the outputIndexName of the connected ElasticSearch
+   * Persist the xContentBuilder in the outputIndexName of the connected ElasticSearch
    *
-   * @param confusionMatrix
+   * @param xContentBuilder
    * @param outputIndexName
    * @return true if successfully saved
    */
-  final def put(confusionMatrix: ConfusionMatrix, outputIndexName: String): Boolean = {
+  final def put(xContentBuilder: XContentBuilder, outputIndexName: String): Boolean = {
 
-    var xContentBuilder: XContentBuilder = XContentFactory.
-      jsonBuilder().startObject()
-
-    for ((givenLabel, labelValueMap) <- confusionMatrix.predictions) {
-      xContentBuilder = xContentBuilder.startObject(givenLabel)
-      for ((label, labelCount) <- labelValueMap) {
-        xContentBuilder = xContentBuilder.field(label, labelCount)
-      }
-      xContentBuilder = xContentBuilder.endObject()
-    }
-    xContentBuilder = xContentBuilder.endObject()
 
     val indexRequest: IndexRequest = new IndexRequest(outputIndexName)
     indexRequest.source(xContentBuilder)
 
-    val response = client.index(indexRequest, RequestOptions.DEFAULT)
-
-    return DocWriteResponse.Result.CREATED.equals(response.getResult())
+    //    val response = client.index(indexRequest, RequestOptions.DEFAULT)
+    val bulkRequest = new BulkRequest(outputIndexName)
+    bulkRequest.add(indexRequest)
+    val response = client.bulk(bulkRequest, RequestOptions.DEFAULT)
+    // println("Response:" + response.getResult)
+    return !response.getItems.toList.exists(item => item.isFailed)
   }
 
-  /**
-   *
-   * @param mapScala
-   * @return
-   */
-  private final def toJavaMapMap(mapScala: Map[String, Map[String, Long]]): java.util.Map[String, java.util.Map[String, java.lang.Long]] = {
-    val mapJava: java.util.Map[String, java.util.Map[String, java.lang.Long]] = new java.util.HashMap[String, java.util.Map[String, java.lang.Long]]()
-    for ((key: String, value: Map[String, Long]) <- mapScala) {
-      mapJava.put(key, toJavaMapLong(value))
-    }
-    return mapJava
-  }
 
-  /**
-   * Manually convert to scala format
-   *
-   * @param mapScala
-   * @return
-   */
-  private final def toJavaMapLong(mapScala: Map[String, Long]): java.util.Map[String, java.lang.Long] = {
-    val mapJava: java.util.Map[String, java.lang.Long] = new util.HashMap[String, java.lang.Long]()
-    for ((key: String, value: Long) <- mapScala) {
-      mapJava.put(key, value)
-    }
-    return mapJava
-  }
 }
