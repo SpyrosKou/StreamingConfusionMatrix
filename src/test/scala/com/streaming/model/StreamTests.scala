@@ -22,6 +22,10 @@ package com.streaming.model
 
 import akka.actor.ActorSystem
 import akka.stream.scaladsl._
+import com.elasticsearch.query.{JsonParser, PersistenceAccess}
+import com.streaming.model.Configuration._
+import org.apache.http.HttpHost
+import org.elasticsearch.client.{RestClient, RestHighLevelClient}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
@@ -87,7 +91,7 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
     val weights = Map("model1" -> 0.5, "model2" -> 0.6)
 
 
-    val countFuture: Future[(Long,Long,Long,Long,Int)] = Source(1 to observationSize).
+    val countFuture: Future[(Long, Long, Long, Long, Int)] = Source(1 to observationSize).
       //Create ModelsPredictionProbabilities that all predict B, but have alternate given Labels
       map(dummyModelsPredictionProbabilities).
       //and run them on windowed confusion matrix
@@ -109,10 +113,10 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
           window.occurrences("B", "B"),
           window.occurrences("A", "A"),
           window.occurrences("B", "A"),
-        1)
+          1)
       }).
       //count by reduction
-      runReduce((x, y) => (x._1 + y._1, x._2 + y._2, x._3 + y._3, x._4 + y._4,x._5 + y._5))
+      runReduce((x, y) => (x._1 + y._1, x._2 + y._2, x._3 + y._3, x._4 + y._4, x._5 + y._5))
 
 
     implicit val ec = system.dispatcher
@@ -126,9 +130,9 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
     //Wait until test is done
     val counter = Await.result(countFuture, Duration.Inf)
     //Half of the times the given label was A and the prediction was B
-    counter._1 should be(expectedWindows * windowSize/2)
+    counter._1 should be(expectedWindows * windowSize / 2)
     //Half of the times the given label was B and the prediction was B
-    counter._2 should be(expectedWindows * windowSize/2)
+    counter._2 should be(expectedWindows * windowSize / 2)
     //There should not be any A prediction
     counter._3 should be(0L)
     //There should not be any A prediction
@@ -202,5 +206,139 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
     val modelsPredictionProbabilities = new ModelsPredictionProbabilities(i, givenLabel, probabilities)
     return modelsPredictionProbabilities
   }
+
+  /**
+   *
+   * @param timeStart
+   * @param timeFinish
+   * @param measurements
+   */
+  private final def calculateThroughput(timeStart: Long, timeFinish: Long, measurements: Long): Long = {
+    val timeFinish = System.currentTimeMillis()
+    val durationMillis = (timeFinish - timeStart) / 1000
+    val measuredThroughput = measurements / durationMillis
+    return measuredThroughput
+  }
+
+  "A Stream starting from an ElasticSearch Source to a WindowedConfusionMatrix" should " have correct number of window calculations and throughput" in {
+    implicit val system: ActorSystem = ActorSystem("Test")
+    val windowSize = 1000
+    val valuesInDatabase = 100_000
+    val expectedWindows = valuesInDatabase - windowSize + 1
+    val throughPutLimitRequirementPerSecond = 100
+
+    val weights = Configuration.WEIGHTS_MAP
+
+    val client = new RestHighLevelClient(RestClient.builder(new HttpHost(ElasticSearchClient.IP, ElasticSearchClient.PORT, ElasticSearchClient.SCHEME)))
+
+    val persistenceAccess = new PersistenceAccess(client, ElasticSearchClient.INPUT_INDEX_NAME)
+    val timeStart = System.currentTimeMillis()
+    val countFuture: Future[Long] = persistenceAccess.getAllInputsSource().
+      async.
+      //and run them on windowed confusion matrix
+      map(modelsPredictionProbabilities => modelsPredictionProbabilities.observation(weights)).
+      async.
+      //and run them on windowed confusion matrix
+      scan(new WindowedConfusionMatrix(windowSize))((window, observation) => window.add(observation)).
+      //filter only full windows
+      filter(window => window.isWindowFull()).
+      map(window => 1L).
+      //count by reduction
+      runReduce((x, y) => x + y)
+
+
+    implicit val ec = system.dispatcher
+
+    countFuture.onComplete(totalValues => {
+      //terminate actor system
+      system.terminate()
+
+      println("Total values from elasticSearch:[" + totalValues + "]")
+
+    })
+
+
+    //Wait until test is done
+    val counter = Await.result(countFuture, Duration.Inf)
+    val measuredThroughput = calculateThroughput(timeStart, timeFinish = System.currentTimeMillis(), valuesInDatabase)
+    println("measuredThroughput:[" + measuredThroughput + "] values per second")
+
+    client.close()
+    //Half of the times the given label was A and the prediction was B
+    counter should be(expectedWindows)
+    //there should be a more formal way to express that,
+    val troughputOK = measuredThroughput >= throughPutLimitRequirementPerSecond
+    troughputOK should be(true)
+
+
+  }
+
+  "An end to end stream" should " have correct number of window calculations and throughput" in {
+    implicit val system: ActorSystem = ActorSystem("Test")
+    val windowSize = 1000
+    val valuesInDatabase = 100_000
+    val valuesLimit=valuesInDatabase
+    val expectedWindows = valuesLimit - windowSize + 1
+    val throughPutLimitRequirementPerSecond = 100
+
+    val weights = Configuration.WEIGHTS_MAP
+
+    val client = new RestHighLevelClient(RestClient.builder(new HttpHost(ElasticSearchClient.IP, ElasticSearchClient.PORT, ElasticSearchClient.SCHEME)))
+    val jsonParser: JsonParser = new JsonParser();
+    val persistenceAccess = new PersistenceAccess(client, ElasticSearchClient.INPUT_INDEX_NAME)
+    val timeStart = System.currentTimeMillis()
+    val countFuture: Future[Long] = persistenceAccess.getAllInputsSource().
+      async.
+      take(valuesLimit).
+      //and run them on windowed confusion matrix
+      map(modelsPredictionProbabilities => modelsPredictionProbabilities.observation(weights)).
+
+      //and run them on windowed confusion matrix
+      scan((new WindowedConfusionMatrix(windowSize), 0))((windowTuple, observation) => (windowTuple._1.add(observation), windowTuple._2 + 1)).
+
+      //filter only full windows
+      filter(windowTuple => windowTuple._1.isWindowFull()).
+      async.
+      groupBy(SUB_STREAMS, tuple => tuple._2 % SUB_STREAMS).
+      map(x => x._1).
+      map(windowTuple => windowTuple.confusionMatrix).
+      map(confusionMatrixTuple => jsonParser.toJsonXContentBuilder(confusionMatrixTuple)).
+      //count successes
+      map(json => persistenceAccess.put(json, Configuration.ElasticSearchClient.OUTPUT_INDEX_NAME)).
+      async.
+      map(result => if (result) 1L else 0L).
+
+      mergeSubstreams.
+      //      map(result => 1L).
+      //count by reduction
+      runReduce((x, y) => x + y)
+
+
+    implicit val ec = system.dispatcher
+
+    countFuture.onComplete(totalValues => {
+      //terminate actor system
+      system.terminate()
+
+      println("Total values from elasticSearch:[" + totalValues + "]")
+
+    })
+
+
+    //Wait until test is done
+    val counter = Await.result(countFuture, Duration.Inf)
+    val measuredThroughput = calculateThroughput(timeStart, timeFinish = System.currentTimeMillis(), valuesInDatabase)
+    println("measuredThroughput:[" + measuredThroughput + "] values per second")
+
+    client.close()
+    //Half of the times the given label was A and the prediction was B
+    counter should be(expectedWindows)
+    //there should be a more formal way to express that,
+    val throughputOK = measuredThroughput >= throughPutLimitRequirementPerSecond
+    throughputOK should be(true)
+
+
+  }
+
 
 }
