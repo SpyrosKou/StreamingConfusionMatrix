@@ -4,12 +4,13 @@ Supports an arbitrary number of models.
 
 ## Confusion Matrix
 A confusion matrix, is a specific table layout that captures the performance of a supervised statistical classification algorithm. [Confusion Matrix - Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix)
-
 [The StreamingConfusionMatrix](https://github.com/SpyrosKou/StreamingConfusionMatrix) project is a [scala](https://scala-lang.org/) implementation that uses of [AKKA Streams](https://doc.akka.io/docs/akka/current/stream/stream-introduction.html) to calculate a confusion matrix for different models over a specifid observation window againist a potentially infinite stream of classification observations. The calculation can be parameterized for any number of classification labels, any size of window as well as any number of models.
 
 ## Calculation Process
 The calculation process has been optimized for throughput at the cost of latency.
-The following are the key optimizations in a high level, flow view of the calculation process. Another optimization is the calculation of the sliding window which is described in [Sliding Window Implementation](#sliding-window-implementation) 
+The following are the key optimizations in a high level, flow view of the calculation process. Another optimization is the calculation of the sliding window which is described in [Sliding Window Implementation](#sliding-window-implementation)
+A high level design of the flow is provided as a diagram with **hyperlinks** to source level in github.
+<img src="https://raw.githubusercontent.com/SpyrosKou/StreamingConfusionMatrix/main/FlowDiagram.svg">
 
 ### Async Pipelining
 The calculation is implemented as a flow of calculation steps that starts from a Source and is completed in a sequence of transformation (mapping) steps.
