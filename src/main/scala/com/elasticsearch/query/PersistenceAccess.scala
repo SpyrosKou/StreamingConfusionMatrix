@@ -155,14 +155,26 @@ final class PersistenceAccess(client: RestHighLevelClient, index: String) {
    * @return true if successfully saved
    */
   final def put(xContentBuilder: XContentBuilder, outputIndexName: String): Boolean = {
+    return put(List(xContentBuilder), outputIndexName)
+  }
 
-
-    val indexRequest: IndexRequest = new IndexRequest(outputIndexName)
-    indexRequest.source(xContentBuilder)
-
-    //    val response = client.index(indexRequest, RequestOptions.DEFAULT)
+  /**
+   * Persist a list of xContentBuilder in the outputIndexName of the connected ElasticSearch
+   *
+   * @param xContentBuilder
+   * @param outputIndexName
+   * @return true if successfully saved
+   */
+  final def put(xContentBuilders: List[XContentBuilder], outputIndexName: String): Boolean = {
     val bulkRequest = new BulkRequest(outputIndexName)
-    bulkRequest.add(indexRequest)
+
+    xContentBuilders.foreach( xContentBuilder => {
+      val indexRequest: IndexRequest = new IndexRequest(outputIndexName)
+      indexRequest.source(xContentBuilder)
+      bulkRequest.add(indexRequest)
+    })
+
+
     val response = client.bulk(bulkRequest, RequestOptions.DEFAULT)
     // println("Response:" + response.getResult)
     return !response.getItems.toList.exists(item => item.isFailed)
