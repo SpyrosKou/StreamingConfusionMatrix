@@ -29,7 +29,7 @@ package com.streaming.model
 /**
  * A ConfusionRow shows different estimations for a specific givenLabel.
  * Estimations are map of the estimated labels to the numbers of estimations.
- * 
+ *
  * @param givenLabel
  * @param estimations
  */

@@ -84,7 +84,7 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
   }
 
 
-  "A ModelsPredictionProbabilities in a Stream" should " predict the correct label" in {
+  "A ModelsProbabilitiesPrediction in a Stream" should " predict the correct label" in {
     implicit val system: ActorSystem = ActorSystem("Test")
     val windowSize = 1000
     val expectedWindows = 1001
@@ -94,10 +94,10 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
 
 
     val countFuture: Future[(Long, Long, Long, Long, Int)] = Source(1 to observationSize).
-      //Create ModelsPredictionProbabilities that all predict B, but have alternate given Labels
-      map(dummyModelsPredictionProbabilities).
+      //Create ModelsProbabilitiesPrediction that all predict B, but have alternate given Labels
+      map(dummyModelsProbabilitiesPrediction).
       //and run them on windowed confusion matrix
-      map(dummyModelsPredictionProbabilities => dummyModelsPredictionProbabilities.observation(weights)).
+      map(dummyModelsProbabilitiesPrediction => dummyModelsProbabilitiesPrediction.observation(weights)).
 
       //and run them on windowed confusion matrix
       scan(new WindowedConfusionMatrix(windowSize))((window, observation) => {
@@ -153,10 +153,10 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
 
 
     val countFuture: Future[Int] = Source(1 to observationSize).
-      //Create ModelsPredictionProbabilities that all predict B, but have alternate given Labels
-      map(dummyModelsPredictionProbabilities).
+      //Create ModelsProbabilitiesPrediction that all predict B, but have alternate given Labels
+      map(dummyModelsProbabilitiesPrediction).
       //and run them on windowed confusion matrix
-      map(dummyModelsPredictionProbabilities => dummyModelsPredictionProbabilities.observation(weights)).
+      map(dummyModelsProbabilitiesPrediction => dummyModelsProbabilitiesPrediction.observation(weights)).
       //filter only B predicted observations
       filter(observation => observation.estimations.get("B").nonEmpty).
       // enumerate
@@ -197,7 +197,7 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
    * @param i is the id of the input, and also "controls" the given Label
    * @return
    */
-  private final def dummyModelsPredictionProbabilities(i: Int): ModelsPredictionProbabilities = {
+  private final def dummyModelsProbabilitiesPrediction(i: Int): ModelsProbabilitiesPrediction = {
     val probabilities = Map(
       "model1" -> Map("A" -> 0.3, "B" -> 0.7),
       "model2" -> Map("A" -> 0.2, "B" -> 0.8)
@@ -205,7 +205,7 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
 
     val givenLabel = if (i % 2 == 0) "A" else "B"
 
-    val modelsPredictionProbabilities = new ModelsPredictionProbabilities(i, givenLabel, probabilities)
+    val modelsPredictionProbabilities = new ModelsProbabilitiesPrediction(i, givenLabel, probabilities)
     return modelsPredictionProbabilities
   }
 

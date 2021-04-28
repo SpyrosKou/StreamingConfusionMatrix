@@ -22,7 +22,7 @@ package com.elasticsearch.query
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import com.streaming.model.{ConfusionMatrix, ModelsPredictionProbabilities}
+import com.streaming.model.{ConfusionMatrix, ModelsProbabilitiesPrediction}
 import org.elasticsearch.action.DocWriteResponse
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.action.search.SearchRequest

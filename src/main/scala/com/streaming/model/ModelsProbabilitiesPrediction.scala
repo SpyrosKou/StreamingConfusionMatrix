@@ -32,9 +32,9 @@ package com.streaming.model
  *
  * @param id                          the id of the entry
  * @param givenLabel                  the given Label
- * @param modelsToLabelsProbabilities the
+ * @param modelsToLabelsProbabilitiesPrediction the
  */
-final class ModelsPredictionProbabilities(val id: Long, val givenLabel: String, val modelsToLabelsProbabilities: Map[String, Map[String, Double]]) {
+final class ModelsProbabilitiesPrediction(val id: Long, val givenLabel: String, val modelsToLabelsProbabilitiesPrediction: Map[String, Map[String, Double]]) {
 
   /**
    * Will throw an AssertionError if the model_id does not exist or if the label requested does not exist for the given model_id
@@ -44,7 +44,7 @@ final class ModelsPredictionProbabilities(val id: Long, val givenLabel: String, 
    * @return the probability prediction
    */
   final def getModelLabelProbability(model_id: String, label: String): Double = {
-    val modelPredictions = this.modelsToLabelsProbabilities.get(model_id)
+    val modelPredictions = this.modelsToLabelsProbabilitiesPrediction.get(model_id)
     assert(modelPredictions.nonEmpty, "Model Id:[" + model_id + "] Not found")
     val probability = modelPredictions.get.get(label);
     assert(probability.nonEmpty, "Label:[" + label + "] for Model Id:[" + model_id + "] Not found")
@@ -61,7 +61,7 @@ final class ModelsPredictionProbabilities(val id: Long, val givenLabel: String, 
   final def observation(weights: Map[String, Double]): ConfusionRow = {
     var labelWeights = collection.mutable.Map.empty[String, Double]
 
-    for ((modelId, modelProbabilities) <- this.modelsToLabelsProbabilities) {
+    for ((modelId, modelProbabilities) <- this.modelsToLabelsProbabilitiesPrediction) {
       val modelWeightOption = weights.get(modelId)
       assert(modelWeightOption.nonEmpty, "Weight missing for modelId=[" + modelId + "]")
       val modelWeight = modelWeightOption.get
@@ -88,5 +88,5 @@ final class ModelsPredictionProbabilities(val id: Long, val givenLabel: String, 
    *
    * @return
    */
-  override def toString = s"ModelsPredictionProbabilities(id=$id, givenLabel=$givenLabel, modelsToLabelsProbabilities=$modelsToLabelsProbabilities)"
+  override def toString = s"ModelsProbabilitiesPrediction(id=$id, givenLabel=$givenLabel, modelsToLabelsProbabilities=$modelsToLabelsProbabilitiesPrediction)"
 }

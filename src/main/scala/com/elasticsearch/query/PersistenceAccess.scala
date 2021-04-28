@@ -22,7 +22,7 @@ package com.elasticsearch.query
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import com.streaming.model.ModelsPredictionProbabilities
+import com.streaming.model.ModelsProbabilitiesPrediction
 import org.elasticsearch.action.bulk.BulkRequest
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.action.search.SearchRequest
@@ -55,7 +55,7 @@ final class PersistenceAccess(client: RestHighLevelClient, index: String) {
    * This function assumes elements start at id
    * This could be also implemented with Source.unfoldResource
    */
-  final def getAllInputsSource(): Source[ModelsPredictionProbabilities, NotUsed] = {
+  final def getAllInputsSource(): Source[ModelsProbabilitiesPrediction, NotUsed] = {
     val firstElement = get(FIRST_ELEMENT_ID).get
     val source = Source.unfold(firstElement) { currentElement =>
       val nextElement = getNext(currentElement)
@@ -70,7 +70,7 @@ final class PersistenceAccess(client: RestHighLevelClient, index: String) {
    *
    * @param id
    */
-  final def get(id: Long): Option[ModelsPredictionProbabilities] = {
+  final def get(id: Long): Option[ModelsProbabilitiesPrediction] = {
 
     val searchRequest = new SearchRequest(index)
 
@@ -93,7 +93,7 @@ final class PersistenceAccess(client: RestHighLevelClient, index: String) {
 
       //Convert to model
       val resultsMap = resultHit.getSourceAsMap
-      val resultModelled = convertToModelsPredictionProbabilities(resultsMap)
+      val resultModelled = convertToModelsProbabilitiesPrediction(resultsMap)
 
       return Some(resultModelled)
     }
@@ -104,7 +104,7 @@ final class PersistenceAccess(client: RestHighLevelClient, index: String) {
    * @param current
    * @return the next value if available
    */
-  private final def getNext(current: ModelsPredictionProbabilities): Option[ModelsPredictionProbabilities] = {
+  private final def getNext(current: ModelsProbabilitiesPrediction): Option[ModelsProbabilitiesPrediction] = {
     if (current == null) {
       None
     }
@@ -115,13 +115,13 @@ final class PersistenceAccess(client: RestHighLevelClient, index: String) {
 
 
   /**
-   * Create a {@Link ModelsPredictionProbabilities} from a search query hit result
+   * Create a {@Link ModelsProbabilitiesPrediction} from a search query hit result
    * This method assumes all expected values are present and does not handle dirty or incomplete data.
    *
    * @param resultsMap
    * @return
    */
-  private final def convertToModelsPredictionProbabilities(resultsMap: java.util.Map[String, AnyRef]): ModelsPredictionProbabilities = {
+  private final def convertToModelsProbabilitiesPrediction(resultsMap: java.util.Map[String, AnyRef]): ModelsProbabilitiesPrediction = {
 
     val resultId: Long = resultsMap.get("id").toString.toLong
     val givenLabel: String = resultsMap.get("given_label").toString
@@ -142,7 +142,7 @@ final class PersistenceAccess(client: RestHighLevelClient, index: String) {
         "model3" -> Map("A" -> model3_A, "B" -> model3_B),
       )
 
-    val resultModelled = new ModelsPredictionProbabilities(resultId, givenLabel, modelsToLabelsProbabilities)
+    val resultModelled = new ModelsProbabilitiesPrediction(resultId, givenLabel, modelsToLabelsProbabilities)
 
     return resultModelled
   }

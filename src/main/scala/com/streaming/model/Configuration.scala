@@ -44,7 +44,13 @@ final object Configuration {
    * Hardcoded Configuration about the ElasticSearchClient
    */
   final object ElasticSearchClient {
+    /**
+     * Index for reading prediction data
+     */
     val INPUT_INDEX_NAME = "raw_data_input"
+    /**
+     * Index for writting confusion matrix data
+     */
     val OUTPUT_INDEX_NAME = "calculated_confusion_matrix"
     val IP = "localhost"
     val PORT = 9200
