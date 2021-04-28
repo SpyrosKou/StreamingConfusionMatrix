@@ -22,8 +22,8 @@ package com.app
 
 import akka.actor.ActorSystem
 import com.elasticsearch.query.{JsonParser, PersistenceAccess}
+import com.streaming.model.Configuration.ElasticSearchClient
 import com.streaming.model.Configuration.ElasticSearchClient._
-import com.streaming.model.Configuration.{ElasticSearchClient}
 import com.streaming.model.{Configuration, WindowedConfusionMatrix}
 import org.apache.http.HttpHost
 import org.elasticsearch.client.indices.GetIndexRequest
@@ -53,7 +53,7 @@ final object StreamingSlidingWindowConfusionMatrix {
 final class StreamingSlidingWindowConfusionMatrix {
 
 
-  private val client = new RestHighLevelClient(RestClient.builder(new HttpHost(IP, PORT, SCHEME)))
+  private[this] val client = new RestHighLevelClient(RestClient.builder(new HttpHost(IP, PORT, SCHEME)))
 
   /**
    *
@@ -67,7 +67,7 @@ final class StreamingSlidingWindowConfusionMatrix {
     val client = new RestHighLevelClient(RestClient.builder(new HttpHost(ElasticSearchClient.IP, ElasticSearchClient.PORT, ElasticSearchClient.SCHEME)))
     val jsonParser: JsonParser = new JsonParser();
     val persistenceAccess = new PersistenceAccess(client, ElasticSearchClient.INPUT_INDEX_NAME)
-    val timeStart = System.currentTimeMillis()
+    
     val countFuture: Future[Long] = persistenceAccess.getAllInputsSource().
       async.
       //and run them on windowed confusion matrix
@@ -79,14 +79,20 @@ final class StreamingSlidingWindowConfusionMatrix {
       //filter only full windows
       filter(windowTuple => windowTuple._1.isWindowFull()).
       async.
+      //divide in sub-streams
       groupBy(Configuration.Calculations.SUB_STREAMS, tuple => tuple._2 % Configuration.Calculations.SUB_STREAMS).
       map(x => x._1).
       map(windowTuple => windowTuple.confusionMatrix).
       map(confusionMatrixTuple => jsonParser.toJsonXContentBuilder(confusionMatrixTuple)).
-      //count successes
-      map(json => persistenceAccess.put(json, Configuration.ElasticSearchClient.OUTPUT_INDEX_NAME)).
       async.
-      map(result => if (result) 1L else 0L).
+      batch(Configuration.Calculations.BATCH_WRITES, element => List(element))((list, element) => element :: list).
+      async.
+      //count successes
+      map(jsons => {
+        persistenceAccess.put(jsons, Configuration.ElasticSearchClient.OUTPUT_INDEX_NAME)
+        jsons.size.toLong      }
+      ).
+      async.
 
       mergeSubstreams.
       //      map(result => 1L).
