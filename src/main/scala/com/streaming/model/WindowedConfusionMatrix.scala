@@ -30,6 +30,8 @@ import scala.collection.immutable.Queue
  * A ConfusionMatrix that
  * - will maintain window size constant and valid by removing old values in a FIFO way
  * - Can fit any number of different labels
+ * This implements a sliding window calculation of the ConfusionMatrix.
+ * It could be implemented more in detail with Flow.sliding https://doc.akka.io/docs/akka/current/stream/operators/Source-or-Flow/sliding.html
  * Created at 2021-04-25 on 11:42 
  *
  * @author Spyros Koukas
