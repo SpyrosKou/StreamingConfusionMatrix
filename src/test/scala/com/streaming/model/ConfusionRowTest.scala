@@ -24,18 +24,19 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers._
 
 /**
+ *
  * @author Spyros Koukas
  */
-class ObservationTest extends AnyFlatSpec with should.Matchers {
+class ConfusionRowTest extends AnyFlatSpec with should.Matchers {
 
-  "An Observation" should "be trivial to construct" in {
+  "A ConfusionRow" should "be trivial to construct" in {
     val label = "Test"
     val observation = new ConfusionRow(label)
     observation.givenLabel should be(label)
     observation.estimations should be(Map.empty)
   }
 
-  "An Observation" should "provide reliable access to data" in {
+  "A ConfusionRow" should "provide reliable access to data" in {
     val label = "Test"
     val frequency = 1L
     val observation = new ConfusionRow(label, Map(label -> frequency, (label + "2") -> 2L))
