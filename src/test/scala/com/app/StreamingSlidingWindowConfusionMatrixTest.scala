@@ -27,7 +27,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
 /**
- * Test the application as a whole
+ * Test the application for throughput and correct  number of windows produced
  *
  * @author Spyros Koukas
  */
@@ -59,8 +59,6 @@ class StreamingSlidingWindowConfusionMatrixTest extends AnyFlatSpec with should.
     //there should be a more formal way to express that,
     val throughputOK = measuredThroughput >= throughPutLimitRequirementPerSecond
     throughputOK should be(true)
-
-
   }
 
   /**
