@@ -92,5 +92,10 @@ This is a demo project that uses [scala](https://scala-lang.org/) for streaming 
 The [configuration class](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/main/scala/com/streaming/model/Configuration.scala) allows the user to configure how many substreams are created and how large batches are saved.
 Some provided tests measure and report the throughput. 
 
-## Design
+## Tests
+ - [ConfusionRowTest](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/scala/com/streaming/model/ConfusionRowTest.scala),[ModelsProbabilitiesPredictionTest](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/scala/com/streaming/model/ModelsProbabilitiesPredictionTest.scala) and [ConfusionMatrixTest](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/scala/com/streaming/model/ConfusionMatrixTest.scala) contain basics tests and calculation for the related models
+ - The correctness of the [sliding window Implementation](#sliding-window-implementation), is tested in [WindowedConfusionMatrixTest](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/scala/com/streaming/model/WindowedConfusionMatrixTest.scala)
+ - [StreamTests](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/scala/com/streaming/model/StreamTests.scala) contains tests related to certain scenarios of the project components, and allows for some experimentation
+ - [StreamingSlidingWindowConfusionMatrixTest.scala](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/scala/com/app/StreamingSlidingWindowConfusionMatrixTest.scala) tests the throughput of the App. It also makes a basic check of the calculation by testing the number of produced windows. 
+
 
