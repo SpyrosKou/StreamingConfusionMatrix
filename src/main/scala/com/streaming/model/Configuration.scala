@@ -36,6 +36,9 @@ final object Configuration {
 
   final object Calculations{
     val SUB_STREAMS = 3
+    /**
+     * The maximum size of the batch to write
+     */
     val BATCH_WRITES=200
   }
 
