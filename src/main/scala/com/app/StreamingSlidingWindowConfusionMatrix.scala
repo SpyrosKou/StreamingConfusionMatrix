@@ -23,7 +23,7 @@ package com.app
 import akka.actor.ActorSystem
 import com.elasticsearch.query.{JsonParser, PersistenceAccess}
 import com.streaming.model.Configuration.ElasticSearchClient._
-import com.streaming.model.Configuration.{ElasticSearchClient, SUB_STREAMS}
+import com.streaming.model.Configuration.{ElasticSearchClient}
 import com.streaming.model.{Configuration, WindowedConfusionMatrix}
 import org.apache.http.HttpHost
 import org.elasticsearch.client.indices.GetIndexRequest
@@ -79,7 +79,7 @@ final class StreamingSlidingWindowConfusionMatrix {
       //filter only full windows
       filter(windowTuple => windowTuple._1.isWindowFull()).
       async.
-      groupBy(SUB_STREAMS, tuple => tuple._2 % SUB_STREAMS).
+      groupBy(Configuration.Calculations.SUB_STREAMS, tuple => tuple._2 % Configuration.Calculations.SUB_STREAMS).
       map(x => x._1).
       map(windowTuple => windowTuple.confusionMatrix).
       map(confusionMatrixTuple => jsonParser.toJsonXContentBuilder(confusionMatrixTuple)).

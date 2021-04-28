@@ -32,8 +32,13 @@ final object Configuration {
    * Hardcoded weights for 3 models
    */
   val WEIGHTS_MAP = Map("model1" -> 0.5, "model2" -> 0.6, "model3" -> 0.7)
-  val SUB_STREAMS = 40;
+
   val WINDOW_SIZE = 1000
+
+  final object Calculations{
+    val SUB_STREAMS = 4
+    val BATCH_WRITES=100
+  }
 
   /**
    * Hardcoded Configuration about the ElasticSearchClient
