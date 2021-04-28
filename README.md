@@ -9,7 +9,7 @@ A confusion matrix, is a specific table layout that captures the performance of 
 
 ## Calculation Process
 The calculation process has been optimized for throughput at the cost of latency.
-The following are the key optimizations in a high level, flow view of the calculation process. Another optimization is the calculation of the sliding window which is described in [Sliding Window Implementation](sliding-window-implementation) 
+The following are the key optimizations in a high level, flow view of the calculation process. Another optimization is the calculation of the sliding window which is described in [Sliding Window Implementation](#sliding-window-implementation) 
 
 ### Async Pipelining
 The calculation is implemented as a flow of calculation steps that starts from a Source and is completed in a sequence of transformation (mapping) steps.
