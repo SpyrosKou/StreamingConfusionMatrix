@@ -23,6 +23,7 @@ package com.streaming.model
 import akka.actor.ActorSystem
 import akka.stream.scaladsl._
 import com.elasticsearch.query.{JsonParser, PersistenceAccess}
+import com.streaming.model.Configuration.Calculations._
 import com.streaming.model.Configuration._
 import org.apache.http.HttpHost
 import org.elasticsearch.client.{RestClient, RestHighLevelClient}
@@ -34,7 +35,8 @@ import scala.concurrent.{Await, Future}
 
 /**
  *
- * These are a set of tests related to the usage of the model in an akka stream
+ * A set of tests related to the usage of akka
+ *
  * Created at 2021-04-25 on 14:31 
  *
  * @author Spyros Koukas
@@ -277,7 +279,7 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
     implicit val system: ActorSystem = ActorSystem("Test")
     val windowSize = 1000
     val valuesInDatabase = 100_000
-    val valuesLimit=valuesInDatabase
+    val valuesLimit = valuesInDatabase
     val expectedWindows = valuesLimit - windowSize + 1
     val throughPutLimitRequirementPerSecond = 100
 
@@ -303,10 +305,20 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
       map(x => x._1).
       map(windowTuple => windowTuple.confusionMatrix).
       map(confusionMatrixTuple => jsonParser.toJsonXContentBuilder(confusionMatrixTuple)).
-      //count successes
-      map(json => persistenceAccess.put(json, Configuration.ElasticSearchClient.OUTPUT_INDEX_NAME)).
       async.
-      map(result => if (result) 1L else 0L).
+
+      batch(Configuration.Calculations.BATCH_WRITES, element => List(element))((list, element) => element :: list).
+      async.
+
+      map(jsons => {
+        //        val startInner=System.currentTimeMillis()
+        persistenceAccess.put(jsons, Configuration.ElasticSearchClient.OUTPUT_INDEX_NAME)
+        //        val endInner=System.currentTimeMillis()
+        val elements = jsons.size.toLong
+        //        println("Duration:["+(endInner-startInner)+"] , elements:["+elements+"]")
+                elements
+      }).
+      async.
 
       mergeSubstreams.
       //      map(result => 1L).
