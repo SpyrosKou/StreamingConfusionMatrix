@@ -71,7 +71,7 @@ final class StreamingSlidingWindowConfusionMatrix {
     val countFuture: Future[Long] = persistenceAccess.getAllInputsSource().
       async.
       //and run them on windowed confusion matrix
-      map(modelsPredictionProbabilities => modelsPredictionProbabilities.observation(weights)).
+      map(modelsProbabilitiesPrediction => modelsProbabilitiesPrediction.calculateConfusionRow(weights)).
 
       //and run them on windowed confusion matrix
       scan((new WindowedConfusionMatrix(Configuration.WINDOW_SIZE), 0))((windowTuple, observation) => (windowTuple._1.add(observation), windowTuple._2 + 1)).

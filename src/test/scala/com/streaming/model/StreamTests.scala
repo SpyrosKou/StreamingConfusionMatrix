@@ -97,7 +97,7 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
       //Create ModelsProbabilitiesPrediction that all predict B, but have alternate given Labels
       map(dummyModelsProbabilitiesPrediction).
       //and run them on windowed confusion matrix
-      map(dummyModelsProbabilitiesPrediction => dummyModelsProbabilitiesPrediction.observation(weights)).
+      map(dummyModelsProbabilitiesPrediction => dummyModelsProbabilitiesPrediction.calculateConfusionRow(weights)).
 
       //and run them on windowed confusion matrix
       scan(new WindowedConfusionMatrix(windowSize))((window, observation) => {
@@ -156,7 +156,7 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
       //Create ModelsProbabilitiesPrediction that all predict B, but have alternate given Labels
       map(dummyModelsProbabilitiesPrediction).
       //and run them on windowed confusion matrix
-      map(dummyModelsProbabilitiesPrediction => dummyModelsProbabilitiesPrediction.observation(weights)).
+      map(dummyModelsProbabilitiesPrediction => dummyModelsProbabilitiesPrediction.calculateConfusionRow(weights)).
       //filter only B predicted observations
       filter(observation => observation.estimations.get("B").nonEmpty).
       // enumerate
@@ -205,8 +205,8 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
 
     val givenLabel = if (i % 2 == 0) "A" else "B"
 
-    val modelsPredictionProbabilities = new ModelsProbabilitiesPrediction(i, givenLabel, probabilities)
-    return modelsPredictionProbabilities
+    val modelsProbabilitiesPrediction = new ModelsProbabilitiesPrediction(i, givenLabel, probabilities)
+    return modelsProbabilitiesPrediction
   }
 
   /**
@@ -238,7 +238,7 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
     val countFuture: Future[Long] = persistenceAccess.getAllInputsSource().
       async.
       //and run them on windowed confusion matrix
-      map(modelsPredictionProbabilities => modelsPredictionProbabilities.observation(weights)).
+      map(modelsProbabilitiesPrediction => modelsProbabilitiesPrediction.calculateConfusionRow(weights)).
       async.
       //and run them on windowed confusion matrix
       scan(new WindowedConfusionMatrix(windowSize))((window, observation) => window.add(observation)).
@@ -293,7 +293,7 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
       async.
       take(valuesLimit).
       //and run them on windowed confusion matrix
-      map(modelsPredictionProbabilities => modelsPredictionProbabilities.observation(weights)).
+      map(modelsProbabilitiesPrediction => modelsProbabilitiesPrediction.calculateConfusionRow(weights)).
 
       //and run them on windowed confusion matrix
       scan((new WindowedConfusionMatrix(windowSize), 0))((windowTuple, observation) => (windowTuple._1.add(observation), windowTuple._2 + 1)).
