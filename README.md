@@ -35,7 +35,7 @@ Setting `Calculations.SUB_STREAMS=1` is logically equivalent to using a linear p
 
 ## Sliding Window Implementation
 
-A [Windowed Confusion Matrix] (https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/main/scala/com/streaming/model/WindowedConfusionMatrix.scala) implements a window
+A [Windowed Confusion Matrix](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/main/scala/com/streaming/model/WindowedConfusionMatrix.scala) implements a window
 This is implemented by using a [ConfusionMatrix](#confusion-matrix) and a FIFO queue. The WindowedConfusionMatrix should be initialized with a specific window size.
 The class has been designed in a way that it is possible to create new instances of different window sizes, however this was not tested.
 A window of N elements introduces a latency of (N-1) elements , as the first N-1 elements will be consumed, but the resulting window will not be valid.
