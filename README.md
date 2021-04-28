@@ -36,7 +36,7 @@ Setting `Calculations.SUB_STREAMS=1` is logically equivalent to using a linear p
 ## Sliding Window Implementation
 
 A [Windowed Confusion Matrix] (https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/main/scala/com/streaming/model/WindowedConfusionMatrix.scala) implements a window
-This is implemented by using a ConfusionMatrix and a FIFO queue. The WindowedConfusionMatrix should be initialized with a specific window size.
+This is implemented by using a [ConfusionMatrix](#confusion-matrix) and a FIFO queue. The WindowedConfusionMatrix should be initialized with a specific window size.
 The class has been designed in a way that it is possible to create new instances of different window sizes, however this was not tested.
 A window of N elements introduces a latency of (N-1) elements , as the first N-1 elements will be consumed, but the resulting window will not be valid.
 The consumer may check if the window is full by calling the `isWindowFull()`
@@ -57,7 +57,7 @@ All access to Elastic Search is handled by the [PersistenceAccess](https://githu
 #### Input Reading
 A [Source](https://doc.akka.io/api/akka/2.6/akka/stream/scaladsl/Source.html) is created in [PersistenceAccess](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/main/scala/com/elasticsearch/query/PersistenceAccess.scala) that reads input one-by-one and converts it to the [Models Probability Prediction](#Models-Probabilities-Prediction) model.
 The Elastic Search access provided all functionality needed to access the saved data in the form of an attribute/value map.
-The conversion from the persisted attribute-value form to [Models Probability Prediction](#Models-Probabilities-Prediction) takes place in [PersistenceAccess](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/main/scala/com/elasticsearch/query/PersistenceAccess.scala)
+The conversion from the persisted attribute-value form to [Models Probability Prediction](#models-probabilities-prediction) takes place in [PersistenceAccess](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/main/scala/com/elasticsearch/query/PersistenceAccess.scala)
 
 #### Output Saving
 The libraries provided together with Elastic Search have been used to convert each Confusion Matrix calculated to JSON. The related class is [JsonParser](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/main/scala/com/elasticsearch/query/JsonParser.scala).
