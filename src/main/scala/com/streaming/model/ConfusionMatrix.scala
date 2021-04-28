@@ -51,8 +51,8 @@ final class ConfusionMatrix(val predictions: Map[String, Map[String, Long]]) {
    *
    * @param observation
    */
-  final def addPrediction(observation: Observation): ConfusionMatrix = {
-    return addPrediction(observation.actualLabel, observation.observation)
+  final def addPrediction(observation: ConfusionRow): ConfusionMatrix = {
+    return addPrediction(observation.givenLabel, observation.estimations)
   }
 
   /**
@@ -60,8 +60,8 @@ final class ConfusionMatrix(val predictions: Map[String, Map[String, Long]]) {
    *
    * @param observation
    */
-  final def removePrediction(observation: Observation): ConfusionMatrix = {
-    return removePrediction(observation.actualLabel, observation.observation)
+  final def removePrediction(observation: ConfusionRow): ConfusionMatrix = {
+    return removePrediction(observation.givenLabel, observation.estimations)
   }
 
 

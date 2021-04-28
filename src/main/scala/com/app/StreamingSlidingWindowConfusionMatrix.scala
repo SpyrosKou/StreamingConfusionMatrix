@@ -67,7 +67,7 @@ final class StreamingSlidingWindowConfusionMatrix {
     val client = new RestHighLevelClient(RestClient.builder(new HttpHost(ElasticSearchClient.IP, ElasticSearchClient.PORT, ElasticSearchClient.SCHEME)))
     val jsonParser: JsonParser = new JsonParser();
     val persistenceAccess = new PersistenceAccess(client, ElasticSearchClient.INPUT_INDEX_NAME)
-    
+
     val countFuture: Future[Long] = persistenceAccess.getAllInputsSource().
       async.
       //and run them on windowed confusion matrix

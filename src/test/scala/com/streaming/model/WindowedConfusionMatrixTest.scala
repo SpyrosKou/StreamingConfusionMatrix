@@ -44,10 +44,10 @@ class WindowedConfusionMatrixTest extends AnyFlatSpec with should.Matchers {
   }
 
   "A WindowedConfusionMatrix" should "respect window limits" in {
-    val observationA = new Observation("A", Map("A" -> 124L, "B" -> 12L))
-    val observationB = new Observation("B", Map("A" -> 11L, "B" -> 321L))
-    val observationC = new Observation("B", Map("A" -> 41L, "B" -> 231L))
-    val observationD = new Observation("A", Map("A" -> 1224L, "B" -> 122L))
+    val observationA = new ConfusionRow("A", Map("A" -> 124L, "B" -> 12L))
+    val observationB = new ConfusionRow("B", Map("A" -> 11L, "B" -> 321L))
+    val observationC = new ConfusionRow("B", Map("A" -> 41L, "B" -> 231L))
+    val observationD = new ConfusionRow("A", Map("A" -> 1224L, "B" -> 122L))
 
     //0
     val windowedConfusionMatrixA = new WindowedConfusionMatrix(3)

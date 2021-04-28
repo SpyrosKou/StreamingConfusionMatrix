@@ -58,7 +58,7 @@ final class ModelsPredictionProbabilities(val id: Long, val givenLabel: String, 
    * @param weights
    * @return
    */
-  final def observation(weights: Map[String, Double]): Observation = {
+  final def observation(weights: Map[String, Double]): ConfusionRow = {
     var labelWeights = collection.mutable.Map.empty[String, Double]
 
     for ((modelId, modelProbabilities) <- this.modelsToLabelsProbabilities) {
@@ -79,7 +79,7 @@ final class ModelsPredictionProbabilities(val id: Long, val givenLabel: String, 
       }
     )._1
     //TODO, Observation can be simplified as it is always created with 1 predicted label
-    return new Observation(this.givenLabel, Map {
+    return new ConfusionRow(this.givenLabel, Map {
       labelSelected -> 1L
     });
   }

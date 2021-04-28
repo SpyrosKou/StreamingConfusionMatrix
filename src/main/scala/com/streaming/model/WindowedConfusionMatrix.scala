@@ -36,7 +36,7 @@ import scala.collection.immutable.Queue
  *
  * @author Spyros Koukas
  */
-final class WindowedConfusionMatrix(val confusionMatrix: ConfusionMatrix, val windowPredictions: Int, val observations: Queue[Observation]) {
+final class WindowedConfusionMatrix(val confusionMatrix: ConfusionMatrix, val windowPredictions: Int, val observations: Queue[ConfusionRow]) {
 
   def this(windowPredictions: Int) {
     this(new ConfusionMatrix(), windowPredictions, Queue.empty)
@@ -57,7 +57,7 @@ final class WindowedConfusionMatrix(val confusionMatrix: ConfusionMatrix, val wi
    * @param observation
    * @return
    */
-  final def add(observation: Observation): WindowedConfusionMatrix = {
+  final def add(observation: ConfusionRow): WindowedConfusionMatrix = {
 
     //create a new queue that includes new observation
     var updatedQueue = this.observations.enqueue(observation)
@@ -67,7 +67,7 @@ final class WindowedConfusionMatrix(val confusionMatrix: ConfusionMatrix, val wi
     //Iterate until the queue is in the required window size.
     // Should normally be executed once, but it may be handy for future functionalities.
     while (updatedQueue.length > this.windowPredictions) {
-      val dequeue: (Observation, Queue[Observation]) = updatedQueue.dequeue
+      val dequeue: (ConfusionRow, Queue[ConfusionRow]) = updatedQueue.dequeue
       //get the rest of the queue
       updatedQueue = dequeue._2
       //Remove from matrix

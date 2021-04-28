@@ -30,17 +30,17 @@ class ObservationTest extends AnyFlatSpec with should.Matchers {
 
   "An Observation" should "be trivial to construct" in {
     val label = "Test"
-    val observation = new Observation(label)
-    observation.actualLabel should be(label)
-    observation.observation should be(Map.empty)
+    val observation = new ConfusionRow(label)
+    observation.givenLabel should be(label)
+    observation.estimations should be(Map.empty)
   }
 
   "An Observation" should "provide reliable access to data" in {
     val label = "Test"
     val frequency = 1L
-    val observation = new Observation(label, Map(label -> frequency, (label + "2") -> 2L))
-    observation.actualLabel should be(label)
-    observation.observation.get(label).get should be(frequency)
-    observation.observation.size should be(2)
+    val observation = new ConfusionRow(label, Map(label -> frequency, (label + "2") -> 2L))
+    observation.givenLabel should be(label)
+    observation.estimations.get(label).get should be(frequency)
+    observation.estimations.size should be(2)
   }
 }

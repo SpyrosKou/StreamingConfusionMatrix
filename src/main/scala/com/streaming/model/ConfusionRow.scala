@@ -27,11 +27,13 @@ package com.streaming.model
  */
 
 /**
- *
- * @param actualLabel
- * @param observation
+ * A ConfusionRow shows different estimations for a specific givenLabel.
+ * Estimations are map of the estimated labels to the numbers of estimations.
+ * 
+ * @param givenLabel
+ * @param estimations
  */
-final class Observation(val actualLabel: String, val observation: Map[String, Long]) {
+final class ConfusionRow(val givenLabel: String, val estimations: Map[String, Long]) {
 
   /**
    * Construct with empty Observation Map
@@ -42,5 +44,5 @@ final class Observation(val actualLabel: String, val observation: Map[String, Lo
   }
 
 
-  override def toString = s"Observation(actualLabel=$actualLabel, observation=$observation)"
+  override def toString = s"Observation(actualLabel=$givenLabel, observation=$estimations)"
 }

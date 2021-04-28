@@ -158,7 +158,7 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
       //and run them on windowed confusion matrix
       map(dummyModelsPredictionProbabilities => dummyModelsPredictionProbabilities.observation(weights)).
       //filter only B predicted observations
-      filter(observation => observation.observation.get("B").nonEmpty).
+      filter(observation => observation.estimations.get("B").nonEmpty).
       // enumerate
       map(_ => 1).
       //count by reduction
@@ -184,9 +184,9 @@ final class StreamTests extends AnyFlatSpec with should.Matchers {
    * @param i
    * @return
    */
-  private final def dummyObservationCreator(i: Int): Observation = {
+  private final def dummyObservationCreator(i: Int): ConfusionRow = {
     val label = if (i % 2 == 0) "A" else "B"
-    return new Observation(label, Map("A" -> i * 2L, "B" -> i * 1L))
+    return new ConfusionRow(label, Map("A" -> i * 2L, "B" -> i * 1L))
   }
 
   /**

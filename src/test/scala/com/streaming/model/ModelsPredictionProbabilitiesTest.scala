@@ -109,13 +109,13 @@ class ModelsPredictionProbabilitiesTest extends AnyFlatSpec with should.Matchers
     // B>A
 
     val frequency = 1L
-    val observationExpected = new Observation("A", Map("B" -> 1L))
+    val observationExpected = new ConfusionRow("A", Map("B" -> 1L))
     val modelsPredictionProbabilities = new ModelsPredictionProbabilities(id, givenLabel, probabilities)
     val observationResult = modelsPredictionProbabilities.observation(weights)
-    observationResult.actualLabel should be(observationExpected.actualLabel)
-    observationResult.observation should be(observationExpected.observation)
-    observationResult.observation.get("B").get should be(observationExpected.observation.get("B").get)
-    observationResult.observation.get("A") should be(observationExpected.observation.get("A"))
+    observationResult.givenLabel should be(observationExpected.givenLabel)
+    observationResult.estimations should be(observationExpected.estimations)
+    observationResult.estimations.get("B").get should be(observationExpected.estimations.get("B").get)
+    observationResult.estimations.get("A") should be(observationExpected.estimations.get("A"))
   }
 
 

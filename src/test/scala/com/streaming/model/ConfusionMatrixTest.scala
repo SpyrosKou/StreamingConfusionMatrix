@@ -50,8 +50,8 @@ class ConfusionMatrixTest extends AnyFlatSpec with should.Matchers {
   }
 
   "A Confusion Matrix " should "be updated correctly with Observations" in {
-    val observationA = new Observation("A", Map("A" -> 124L, "B" -> 12L))
-    val observationB = new Observation("B", Map("A" -> 11L, "B" -> 321L))
+    val observationA = new ConfusionRow("A", Map("A" -> 124L, "B" -> 12L))
+    val observationB = new ConfusionRow("B", Map("A" -> 11L, "B" -> 321L))
 
     val confusionMatrix = new ConfusionMatrix()
     confusionMatrix.predictions.size should be(0)
