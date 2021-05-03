@@ -101,4 +101,9 @@ Some provided tests measure and report the throughput.
  - [StreamTests](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/scala/com/streaming/model/StreamTests.scala) contains tests related to certain scenarios of the project components, and allows for some experimentation
  - [StreamingSlidingWindowConfusionMatrixTest.scala](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/scala/com/app/StreamingSlidingWindowConfusionMatrixTest.scala) tests the throughput of the App. It also makes a basic check of the calculation by testing the number of produced windows. 
 
-
+## Sample Data
+    
+ - [SampleInputs.csv](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/resources/sampleInputs.crv)
+   Contains a csv with some sample random data used for calculations.
+   
+ - [SampleResults.json](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/resources/SampleResults.json) Is a file with some sample results after a single run of the app, after all previous results were deleted.
