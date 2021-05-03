@@ -22,15 +22,19 @@ package com.elasticsearch.query
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import com.streaming.model.ModelsProbabilitiesPrediction
+import com.streaming.model.{Configuration, ModelsProbabilitiesPrediction}
 import org.elasticsearch.action.bulk.BulkRequest
 import org.elasticsearch.action.index.IndexRequest
-import org.elasticsearch.action.search.SearchRequest
+import org.elasticsearch.action.search.{ClearScrollRequest, SearchRequest, SearchScrollRequest}
 import org.elasticsearch.client.{RequestOptions, RestHighLevelClient}
+import org.elasticsearch.common.unit.TimeValue
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.builder.SearchSourceBuilder
+import org.elasticsearch.search.{Scroll, SearchHit}
 
+import java.nio.file.{Files, Path}
+import java.util.StringJoiner
 
 /**
  * Created at 2021-04-27 on 19:39
@@ -63,6 +67,50 @@ final class PersistenceAccess(client: RestHighLevelClient, index: String) {
       else Some(nextElement.getOrElse(null), currentElement)
     }
     return source
+  }
+
+  /**
+   * Creates a file with the given name and writes all data from the index
+   */
+  final def getAllSavedOutputsToFile(indexName: String, fileName: String): Boolean = {
+    val id: String = System.currentTimeMillis().toString;
+
+    val scroll = new Scroll(TimeValue.timeValueMinutes(Configuration.ElasticSearchClient.TIME_WINDOW))
+    val searchRequest = new SearchRequest(indexName)
+    val searchSourceBuilder = new SearchSourceBuilder
+    searchSourceBuilder.query(QueryBuilders.matchAllQuery())
+    searchSourceBuilder.size(Configuration.ElasticSearchClient.MAX_SEARCH)
+    searchRequest.source(searchSourceBuilder)
+    searchRequest.scroll(scroll)
+
+
+    val searchResponseInit = client.search(searchRequest, RequestOptions.DEFAULT)
+    var scrollId = searchResponseInit.getScrollId
+    var searchHits: Array[SearchHit] = searchResponseInit.getHits.getHits
+    val stringJoiner: StringJoiner = new StringJoiner(",","{\"results\":[",  "]}")
+    while ( {
+      searchHits != null && searchHits.length > 0
+    }) {
+      searchHits.foreach(valueOf => {
+        stringJoiner.add(valueOf.getSourceAsString)
+      })
+      val scrollRequest = new SearchScrollRequest(scrollId)
+      scrollRequest.scroll(scroll)
+      val searchResponse = client.scroll(scrollRequest, RequestOptions.DEFAULT)
+      scrollId = searchResponse.getScrollId
+      searchHits = searchResponse.getHits.getHits
+
+
+    }
+
+    val clearScrollRequest = new ClearScrollRequest
+    clearScrollRequest.addScrollId(scrollId)
+    val clearScrollResponse = client.clearScroll(clearScrollRequest, RequestOptions.DEFAULT)
+    val succeeded = clearScrollResponse.isSucceeded
+    val result:String=stringJoiner.toString
+    val path:Path =Path.of(fileName)
+    Files.writeString(path,result)
+    return path.toFile.exists();
   }
 
   /**
@@ -168,7 +216,7 @@ final class PersistenceAccess(client: RestHighLevelClient, index: String) {
   final def put(xContentBuilders: List[XContentBuilder], outputIndexName: String): Boolean = {
     val bulkRequest = new BulkRequest(outputIndexName)
 
-    xContentBuilders.foreach( xContentBuilder => {
+    xContentBuilders.foreach(xContentBuilder => {
       val indexRequest: IndexRequest = new IndexRequest(outputIndexName)
       indexRequest.source(xContentBuilder)
       bulkRequest.add(indexRequest)
