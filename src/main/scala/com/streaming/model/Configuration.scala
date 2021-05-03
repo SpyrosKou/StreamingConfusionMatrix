@@ -47,6 +47,9 @@ final object Configuration {
    * Hardcoded Configuration about the ElasticSearchClient
    */
   final object ElasticSearchClient {
+    val MAX_SEARCH: Int = 10_000
+    val TIME_WINDOW: Long = 3
+
     /**
      * Index for reading prediction data
      */
