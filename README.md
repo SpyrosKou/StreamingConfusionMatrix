@@ -3,7 +3,7 @@ Parallel calculation of the confusion matrix for a sliding window of streamed la
 Supports an arbitrary number of models.
 
 ## Confusion Matrix
-A confusion matrix, is a specific table layout that captures the performance of a supervised statistical classification algorithm. [Confusion Matrix - Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix).
+A [Confusion Matrix - Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix), is a specific table layout that captures the performance of a supervised statistical classification algorithm in Machine Learning. 
 
 
 [The StreamingConfusionMatrix](https://github.com/SpyrosKou/StreamingConfusionMatrix) project is a [scala](https://scala-lang.org/) implementation that uses of [AKKA Streams](https://doc.akka.io/docs/akka/current/stream/stream-introduction.html) to calculate a confusion matrix for different models over a specifid observation window againist a potentially infinite stream of classification observations. The calculation can be parameterized for any number of classification labels, any size of window as well as any number of models.
@@ -89,12 +89,6 @@ Following the choice in the Confusion Matrix modelling, `Long` has been chosen t
 ### Weights
 This projects assumes a constant weights per model. So weights are stored as a map from modelId to weight values. The current instance contains a hardcoded configuration of 3 models in the [configuration class](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/main/scala/com/streaming/model/Configuration.scala).
 
-
-## Motivation
-This is a demo project that uses [scala](https://scala-lang.org/) for streaming computation.
-The [configuration class](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/main/scala/com/streaming/model/Configuration.scala) allows the user to configure how many substreams are created and how large batches are saved.
-Some provided tests measure and report the throughput. 
-
 ## Tests
  - [ConfusionRowTest](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/scala/com/streaming/model/ConfusionRowTest.scala),[ModelsProbabilitiesPredictionTest](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/scala/com/streaming/model/ModelsProbabilitiesPredictionTest.scala) and [ConfusionMatrixTest](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/scala/com/streaming/model/ConfusionMatrixTest.scala) contain basics tests and calculation for the related models
  - The correctness of the [sliding window Implementation](#sliding-window-implementation), is tested in [WindowedConfusionMatrixTest](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/scala/com/streaming/model/WindowedConfusionMatrixTest.scala)
@@ -107,3 +101,11 @@ Some provided tests measure and report the throughput.
    Contains a csv with some sample random data used for calculations.
    
  - [SampleResults.json](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/test/resources/SampleResults.json) Is a file with some sample results after a single run of the app, after all previous results were deleted.
+
+
+## About
+This is a demo project, created for fun, that uses [scala](https://scala-lang.org/) for streaming computation. 
+The [configuration class](https://github.com/SpyrosKou/StreamingConfusionMatrix/blob/main/src/main/scala/com/streaming/model/Configuration.scala) allows the user to configure how many substreams are created and how large batches are saved.
+Some provided tests measure and report the throughput. 
+
+
